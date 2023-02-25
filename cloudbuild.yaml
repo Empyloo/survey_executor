@@ -24,5 +24,5 @@ steps:
       - --source=.
       - --entry-point=main
       - --trigger-http
-      - --allow-unauthenticated
+      - --no-allow-unauthenticated
       - --memory=256MiB
