@@ -1,0 +1,4 @@
+functions-framework
+tenacity
+PyJWT
+google-cloud-tasks
