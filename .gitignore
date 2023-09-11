@@ -133,3 +133,5 @@ script.sh
 
 # Experiments
 experiments/
+exp*
+exp/
