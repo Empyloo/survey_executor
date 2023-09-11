@@ -21,9 +21,8 @@ steps:
   # Deploy
   - name: gcr.io/cloud-builders/gcloud
     id: 'deploy'
-    waitFor:
-      - 'Get Survey-Executor Cloud Function URL'
-      - 'Get Survey-Analyser Cloud Function URL'
+    # waitFor:
+      # - 'Get Survey-Analyser Cloud Function URL'
     entrypoint: 'bash'
     env:
       - 'CLOUDSDK_COMPUTE_ZONE=europe-west2'
