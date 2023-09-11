@@ -43,3 +43,4 @@ tenacity==8.2.1
 urllib3==1.26.14
 watchdog==2.3.0
 Werkzeug==2.2.3
+google_crc32c==1.5.0
