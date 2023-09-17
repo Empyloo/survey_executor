@@ -48,7 +48,6 @@ def main(request: Request) -> Union[Response, Tuple[Response, int]]:
     print("Request data: ", request.get_data())
     print("Request headers: ", request.headers)
     print("Request args: ", request.args)
-    print("Request json: ", request.get_json())
     if request.method != "POST":
         return jsonify({"message": "Method not allowed"}), 405
     if not request.data:
