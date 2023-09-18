@@ -55,7 +55,12 @@ def main(request: Request) -> Union[Response, Tuple[Response, int]]:
     campaign_id = json.loads(request.data)["id"]
     if not campaign_id:
         return jsonify({"message": "campaign_id is required"}), 400
-    campaign_job = start_campaign_job(campaign_id=campaign_id)
+    campaign_job = start_campaign_job(
+        campaign_id=campaign_id,
+        campaign_service=campaign_service,
+        supabase_client=supabase_client,
+        env_vars=env_vars,
+        )
     if not campaign_job:
         return jsonify({"message": "Failed to start campaign job"}), 500
 
