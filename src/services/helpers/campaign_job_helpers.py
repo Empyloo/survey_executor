@@ -1,4 +1,5 @@
 # Path: src/services/helpers/campaign_job_helpers.py
+import logging
 from datetime import datetime
 from typing import Optional
 from supacrud import Supabase
@@ -10,17 +11,25 @@ from src.utils.create_job_number import create_job_number
 from src.utils.next_runtime_calc import calculate_next_run_time
 
 
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
 def fetch_campaign_and_emails(campaign_service, campaign_id: str) -> Optional[Campaign]:
+    logger.debug(f"Fetching campaign and emails for campaign_id: {campaign_id}")
     campaign = campaign_service.get_campaign(campaign_id=campaign_id)
+    print("campaign: ", campaign)
     if not campaign:
+        logger.warning(f"No campaign found for campaign_id: {campaign_id}")
         return None
     emails = campaign_service.get_campaign_emails(campaign_id=campaign_id)
     if not emails:
+        logger.warning(f"No emails found for campaign_id: {campaign_id}")
         return None
     return campaign, emails
 
 
 def calculate_next_runtime(campaign: Campaign) -> Optional[str]:
+    logger.debug(f"Calculating next runtime for campaign_id: {campaign.id}")
     next_run_time = None
     if campaign.type != "instant":
         next_run_time = calculate_next_run_time(
@@ -33,6 +42,7 @@ def calculate_next_runtime(campaign: Campaign) -> Optional[str]:
 def create_job_data(
     campaign: Campaign, next_run_time: Optional[str], supabase_client
 ) -> Job:
+    logger.debug(f"Creating job data for campaign_id: {campaign.id}")
     job_number = create_job_number(campaign_id=campaign.id, supabase=supabase_client)
     return Job(
         number=job_number,
@@ -48,7 +58,7 @@ def create_job_data(
         type=campaign.type,
         duration=campaign.duration,
         frequency=campaign.frequency,
-        time_of_day=campaign.time_of_day.isoformat() if campaign.time_of_day else None,
+        time_of_day=campaign.time_of_day if campaign.time_of_day else None,
         cloud_task_id=campaign.cloud_task_id,
     )
 
@@ -56,6 +66,7 @@ def create_job_data(
 def schedule_survey_analytics(
     campaign: Campaign, job: Job, campaign_service, env_vars: dict
 ):
+    logger.debug(f"Scheduling survey analytics for job_id: {job.id}")
     survey_job_execution_time = calculate_duration_time(
         type=campaign.type,
         duration=campaign.duration,
@@ -76,6 +87,7 @@ def start_campaign_job(
     supabase_client: Supabase,
     env_vars: dict,
 ) -> Optional[Job]:
+    logger.info(f"Starting campaign job for campaign_id: {campaign_id}")
     campaign, emails = fetch_campaign_and_emails(campaign_service, campaign_id)
     if campaign is None or emails is None:
         return None
@@ -84,6 +96,7 @@ def start_campaign_job(
     job_data = create_job_data(campaign, next_run_time, supabase_client)
     job = campaign_service.create_job(job_data=job_data)
     if not job:
+        logger.error(f"Failed to create job for campaign_id: {campaign_id}")
         return None
 
     if emails:
